@@ -41,12 +41,44 @@ namespace bustub {
 // https://blog.galowicz.de/2016/02/20/short_file_macro/
 using cstr = const char *;
 
+// this should be a bug
+// The revised answer is as follows
+/*
 static constexpr cstr PastLastSlash(cstr a, cstr b) {
   return *a == '\0' ? b : *b == '/' ? PastLastSlash(a + 1, a + 1) : PastLastSlash(a + 1, b);
+}
+*/
+//   
+static constexpr cstr PastLastSlash(cstr a, cstr b) {
+  return *a == '\0' ? b : *a == '/' ? PastLastSlash(a + 1, a + 1) : PastLastSlash(a + 1, b);
 }
 
 static constexpr cstr PastLastSlash(cstr a) { return PastLastSlash(a, a); }
 
+// With C++14 , We can express easier to read by loop way
+/*
+static constexpr cstr PastLastSlash(cstr a) { 
+  cstr lastSlash = a;
+  for (; *a;++a){
+    if(*a=='/'){
+      lastSlash = a + 1;
+    }
+  }
+  return lastSlash;
+}
+*/
+
+// Explain this macro in detail
+// Firstly we need to recognize the fact that
+// The return values of functions marked constexpr
+// are only guaranteed to be calculated at compile time,
+// if they are put into variables whech are alst makred constexpr
+// so if we calulate " cout << PastLastSlash(cstr a) << endl "
+// and no turn on the optimization , may be run in runtime
+// we should do something to guarantee run in compile time
+// as follows:
+// Note : The parentheses around that allow for 
+//        transforming this scope block into an expression
 #define __SHORT_FILE__                            \
   ({                                              \
     constexpr cstr sf__{PastLastSlash(__FILE__)}; \
